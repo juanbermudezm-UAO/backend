@@ -1,5 +1,65 @@
 package backend.service;
 
-public class ICitasServiceImp implements ICitasService{
-    
+import java.util.List;
+
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import backend.model.BicicletasModel;
+import backend.model.CitasModel;
+import backend.model.UsuariosModel;
+import backend.repository.ICitasRepository;
+
+@Service
+public class ICitasServiceImp implements ICitasService {
+
+    @Autowired
+    ICitasRepository citasRepository;
+
+    @Autowired
+    IUsuariosService usuariosService;
+
+    @Autowired
+    IBicicletasService bicicletasService;
+
+    @Autowired
+    IServiciosService serviciosService;
+
+    @Override
+    public CitasModel crearCita(CitasModel cita) {
+        ObjectId clienteId = cita.getClienteId();
+        UsuariosModel cliente = usuariosService.buscarUsuarioPorId(clienteId);
+        if (cliente == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El cliente con ID " + clienteId + " no existe.");
+        }
+
+        ObjectId bicicletaId = cita.getBicicletaId();
+        BicicletasModel bicicleta = bicicletasService.buscarBicicletaPorId(bicicletaId);
+        if (bicicleta == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La bicicleta con ID " + bicicletaId + " no existe.");
+        }
+
+        if (cita.getServiciosInteres() != null) {
+            for (ObjectId servicioId : cita.getServiciosInteres()) {
+                if (serviciosService.buscarServicioPorId(servicioId) == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El servicio con ID " + servicioId + " no existe.");
+                }
+            }
+        }
+
+        return citasRepository.save(cita);
+    }
+
+    @Override
+    public List<CitasModel> listarCitas() {
+        return citasRepository.findAll();
+    }
+
+    @Override
+    public CitasModel buscarCitaPorId(ObjectId id) {
+        return citasRepository.findById(id).orElse(null);
+    }
 }
