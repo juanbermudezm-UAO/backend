@@ -10,4 +10,6 @@ public interface IBicicletasService {
     BicicletasModel crearBicicleta(BicicletasModel bicicleta);
     List<BicicletasModel> listarBicicletas();
     BicicletasModel buscarBicicletaPorId(ObjectId id);
+    BicicletasModel actualizarBicicleta(ObjectId id, BicicletasModel bicicleta);
+    void eliminarBicicleta(ObjectId id);
 }

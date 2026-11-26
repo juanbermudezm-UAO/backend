@@ -8,9 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import backend.model.BicicletasModel;
 import backend.model.CitasModel;
-import backend.model.UsuariosModel;
 import backend.repository.ICitasRepository;
 
 @Service
@@ -28,17 +26,14 @@ public class ICitasServiceImp implements ICitasService {
     @Autowired
     IServiciosService serviciosService;
 
-    @Override
-    public CitasModel crearCita(CitasModel cita) {
+    private void validarReferencias(CitasModel cita) {
         ObjectId clienteId = cita.getClienteId();
-        UsuariosModel cliente = usuariosService.buscarUsuarioPorId(clienteId);
-        if (cliente == null) {
+        if (usuariosService.buscarUsuarioPorId(clienteId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El cliente con ID " + clienteId + " no existe.");
         }
 
         ObjectId bicicletaId = cita.getBicicletaId();
-        BicicletasModel bicicleta = bicicletasService.buscarBicicletaPorId(bicicletaId);
-        if (bicicleta == null) {
+        if (bicicletasService.buscarBicicletaPorId(bicicletaId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La bicicleta con ID " + bicicletaId + " no existe.");
         }
 
@@ -49,7 +44,11 @@ public class ICitasServiceImp implements ICitasService {
                 }
             }
         }
+    }
 
+    @Override
+    public CitasModel crearCita(CitasModel cita) {
+        validarReferencias(cita);
         return citasRepository.save(cita);
     }
 
@@ -61,5 +60,23 @@ public class ICitasServiceImp implements ICitasService {
     @Override
     public CitasModel buscarCitaPorId(ObjectId id) {
         return citasRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public CitasModel actualizarCita(ObjectId id, CitasModel cita) {
+        if (buscarCitaPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La cita con ID " + id + " no existe.");
+        }
+        validarReferencias(cita);
+        cita.setId(id);
+        return citasRepository.save(cita);
+    }
+
+    @Override
+    public void eliminarCita(ObjectId id) {
+        if (buscarCitaPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La cita con ID " + id + " no existe.");
+        }
+        citasRepository.deleteById(id);
     }
 }

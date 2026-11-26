@@ -26,8 +26,7 @@ public class IOrdenesServiciosServiceImp implements IOrdenesServiciosService {
     @Autowired
     ICitasService citasService;
 
-    @Override
-    public OrdenesServiciosModel crearOrdenServicio(OrdenesServiciosModel ordenServicio) {
+    private void validarReferencias(OrdenesServiciosModel ordenServicio) {
         ObjectId clienteId = ordenServicio.getClienteId();
         if (usuariosService.buscarUsuarioPorId(clienteId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El cliente con ID " + clienteId + " no existe.");
@@ -57,7 +56,11 @@ public class IOrdenesServiciosServiceImp implements IOrdenesServiciosService {
                 }
             }
         }
+    }
 
+    @Override
+    public OrdenesServiciosModel crearOrdenServicio(OrdenesServiciosModel ordenServicio) {
+        validarReferencias(ordenServicio);
         return ordenesServiciosRepository.save(ordenServicio);
     }
 
@@ -69,5 +72,23 @@ public class IOrdenesServiciosServiceImp implements IOrdenesServiciosService {
     @Override
     public OrdenesServiciosModel buscarOrdenServicioPorId(ObjectId id) {
         return ordenesServiciosRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public OrdenesServiciosModel actualizarOrdenServicio(ObjectId id, OrdenesServiciosModel ordenServicio) {
+        if (buscarOrdenServicioPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La orden de servicio con ID " + id + " no existe.");
+        }
+        validarReferencias(ordenServicio);
+        ordenServicio.setId(id);
+        return ordenesServiciosRepository.save(ordenServicio);
+    }
+
+    @Override
+    public void eliminarOrdenServicio(ObjectId id) {
+        if (buscarOrdenServicioPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La orden de servicio con ID " + id + " no existe.");
+        }
+        ordenesServiciosRepository.deleteById(id);
     }
 }
