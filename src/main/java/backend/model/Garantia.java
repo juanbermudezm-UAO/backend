@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Garantia {
-    private Integer duracion;
+    private Integer duracion; // duración en días
     private Date fechaInicio;
     private String condiciones;
     private String exclusiones;

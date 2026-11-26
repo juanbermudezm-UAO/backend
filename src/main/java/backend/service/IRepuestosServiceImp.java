@@ -17,8 +17,19 @@ public class IRepuestosServiceImp implements IRepuestosService {
     @Autowired
     IRepuestosRepository repuestosRepository;
 
+    private void validarRepuesto(RepuestosModel repuesto) {
+        if (repuesto.getNombre() == null || repuesto.getNombre().isBlank()
+                || repuesto.getEspecificaciones() == null || repuesto.getEspecificaciones().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los campos nombre y especificaciones son obligatorios.");
+        }
+        if (repuesto.getPrecio() == null || repuesto.getPrecio() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El precio del repuesto debe ser >= 0.");
+        }
+    }
+
     @Override
     public RepuestosModel crearRepuesto(RepuestosModel repuesto) {
+        validarRepuesto(repuesto);
         return repuestosRepository.save(repuesto);
     }
 
@@ -37,6 +48,7 @@ public class IRepuestosServiceImp implements IRepuestosService {
         if (buscarRepuestoPorId(id) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El repuesto con ID " + id + " no existe.");
         }
+        validarRepuesto(repuesto);
         repuesto.setId(id);
         return repuestosRepository.save(repuesto);
     }

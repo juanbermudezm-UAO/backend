@@ -1,5 +1,7 @@
 package backend.service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -8,11 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import backend.model.Garantia;
 import backend.model.SolicitudesGarantiasModel;
+import backend.model.TrabajosOrdenModel;
 import backend.repository.ISolicitudesGarantiasRepository;
 
 @Service
 public class ISolicitudesGarantiasServiceImp implements ISolicitudesGarantiasService {
+
+    private static final List<String> ESTADOS_VALIDOS = List.of("registrada", "en_revision", "cerrada");
 
     @Autowired
     ISolicitudesGarantiasRepository solicitudesGarantiasRepository;
@@ -20,16 +26,38 @@ public class ISolicitudesGarantiasServiceImp implements ISolicitudesGarantiasSer
     @Autowired
     ITrabajosOrdenService trabajosOrdenService;
 
-    private void validarReferencias(SolicitudesGarantiasModel solicitudGarantia) {
-        ObjectId trabajoId = solicitudGarantia.getTrabajoId();
-        if (trabajosOrdenService.buscarTrabajoOrdenPorId(trabajoId) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El trabajo de orden con ID " + trabajoId + " no existe.");
+    private void validarSolicitudGarantia(SolicitudesGarantiasModel solicitud) {
+        if (solicitud.getTrabajoId() == null || solicitud.getDescripcion() == null || solicitud.getDescripcion().isBlank()
+                || solicitud.getFecha() == null || solicitud.getEvidencias() == null || solicitud.getEvidencias().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "trabajoId, descripcion, fecha y evidencias son obligatorios.");
+        }
+        if (solicitud.getEstado() == null || !ESTADOS_VALIDOS.contains(solicitud.getEstado())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El estado de la solicitud debe ser uno de: " + ESTADOS_VALIDOS);
+        }
+
+        TrabajosOrdenModel trabajo = trabajosOrdenService.buscarTrabajoOrdenPorId(solicitud.getTrabajoId());
+        if (trabajo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El trabajo de orden con ID " + solicitud.getTrabajoId() + " no existe.");
+        }
+
+        Garantia garantia = trabajo.getGarantia();
+        if (garantia == null || garantia.getFechaInicio() == null || garantia.getDuracion() == null || garantia.getDuracion() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El trabajo asociado no cuenta con una garantía válida.");
+        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(garantia.getFechaInicio());
+        cal.add(Calendar.DAY_OF_YEAR, garantia.getDuracion());
+        Date fechaVencimiento = cal.getTime();
+
+        if (solicitud.getFecha().before(garantia.getFechaInicio()) || solicitud.getFecha().after(fechaVencimiento)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La solicitud está fuera del periodo de vigencia de la garantía.");
         }
     }
 
     @Override
     public SolicitudesGarantiasModel crearSolicitudGarantia(SolicitudesGarantiasModel solicitudGarantia) {
-        validarReferencias(solicitudGarantia);
+        validarSolicitudGarantia(solicitudGarantia);
         return solicitudesGarantiasRepository.save(solicitudGarantia);
     }
 
@@ -48,7 +76,7 @@ public class ISolicitudesGarantiasServiceImp implements ISolicitudesGarantiasSer
         if (buscarSolicitudGarantiaPorId(id) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La solicitud de garantía con ID " + id + " no existe.");
         }
-        validarReferencias(solicitudGarantia);
+        validarSolicitudGarantia(solicitudGarantia);
         solicitudGarantia.setId(id);
         return solicitudesGarantiasRepository.save(solicitudGarantia);
     }

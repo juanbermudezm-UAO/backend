@@ -18,7 +18,7 @@ public class BicicletasModel {
     private ObjectId propietarioId;
     private String marca;
     private String modelo;
-    private String tipo;
+    private String tipo; // urbana | ruta | montaña | electrica
     private String color;
     private String numeroSerie;
     private CaracteristicasTecnicas caracteristicasTecnicas;

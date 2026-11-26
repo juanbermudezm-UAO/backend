@@ -1,6 +1,7 @@
 package backend.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 
@@ -12,4 +13,5 @@ public interface ITrabajosOrdenService {
     TrabajosOrdenModel buscarTrabajoOrdenPorId(ObjectId id);
     TrabajosOrdenModel actualizarTrabajoOrden(ObjectId id, TrabajosOrdenModel trabajoOrden);
     void eliminarTrabajoOrden(ObjectId id);
+    Map<String, Object> calcularValorEstimadoTrabajo(ObjectId trabajoId);
 }

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Ejecucion {
     private Date fechaInicio;
     private Date fechaFinalizacion;
-    private String estado;
+    private String estado; // pendiente | en_progreso | finalizado | cancelado
     private String descripcionRealizada;
     private List<RepuestosUtilizadosModel> repuestosUtilizados;
 }

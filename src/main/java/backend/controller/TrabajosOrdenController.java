@@ -28,7 +28,8 @@ public class TrabajosOrdenController {
 
     @PostMapping
     public ResponseEntity<TrabajosOrdenModel> crearTrabajoOrden(@RequestBody TrabajosOrdenModel trabajoOrden) {
-        return new ResponseEntity<TrabajosOrdenModel>(trabajosOrdenService.crearTrabajoOrden(trabajoOrden), HttpStatus.CREATED);
+        return new ResponseEntity<TrabajosOrdenModel>(trabajosOrdenService.crearTrabajoOrden(trabajoOrden),
+                HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -45,9 +46,16 @@ public class TrabajosOrdenController {
         return new ResponseEntity<TrabajosOrdenModel>(trabajo, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/valorEstimado")
+    public ResponseEntity<Object> calcularValorEstimadoTrabajo(@PathVariable ObjectId id) {
+        return new ResponseEntity<>(trabajosOrdenService.calcularValorEstimadoTrabajo(id), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<TrabajosOrdenModel> actualizarTrabajoOrden(@PathVariable ObjectId id, @RequestBody TrabajosOrdenModel trabajoOrden) {
-        return new ResponseEntity<TrabajosOrdenModel>(trabajosOrdenService.actualizarTrabajoOrden(id, trabajoOrden), HttpStatus.OK);
+    public ResponseEntity<TrabajosOrdenModel> actualizarTrabajoOrden(@PathVariable ObjectId id,
+            @RequestBody TrabajosOrdenModel trabajoOrden) {
+        return new ResponseEntity<TrabajosOrdenModel>(trabajosOrdenService.actualizarTrabajoOrden(id, trabajoOrden),
+                HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

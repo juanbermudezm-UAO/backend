@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Autorizacion {
-    private String decision;
+    private String decision; // autorizado | rechazado
     private Date fecha;
     private String comentarios;
 }

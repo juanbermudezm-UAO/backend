@@ -28,26 +28,36 @@ public class OrdenesServiciosController {
 
     @PostMapping
     public ResponseEntity<OrdenesServiciosModel> crearOrdenServicio(@RequestBody OrdenesServiciosModel ordenServicio) {
-        return new ResponseEntity<OrdenesServiciosModel>(ordenesServiciosService.crearOrdenServicio(ordenServicio), HttpStatus.CREATED);
+        return new ResponseEntity<OrdenesServiciosModel>(ordenesServiciosService.crearOrdenServicio(ordenServicio),
+                HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<OrdenesServiciosModel>> listarOrdenesServicios() {
-        return new ResponseEntity<List<OrdenesServiciosModel>>(ordenesServiciosService.listarOrdenesServicios(), HttpStatus.OK);
+        return new ResponseEntity<List<OrdenesServiciosModel>>(ordenesServiciosService.listarOrdenesServicios(),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrdenesServiciosModel> buscarOrdenServicioPorId(@PathVariable ObjectId id) {
         OrdenesServiciosModel orden = ordenesServiciosService.buscarOrdenServicioPorId(id);
         if (orden == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La orden de servicio con ID " + id + " no existe.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "La orden de servicio con ID " + id + " no existe.");
         }
         return new ResponseEntity<OrdenesServiciosModel>(orden, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/valorEstimado")
+    public ResponseEntity<Object> calcularValorEstimadoPropuesta(@PathVariable ObjectId id) {
+        return new ResponseEntity<>(ordenesServiciosService.calcularValorEstimadoPropuesta(id), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<OrdenesServiciosModel> actualizarOrdenServicio(@PathVariable ObjectId id, @RequestBody OrdenesServiciosModel ordenServicio) {
-        return new ResponseEntity<OrdenesServiciosModel>(ordenesServiciosService.actualizarOrdenServicio(id, ordenServicio), HttpStatus.OK);
+    public ResponseEntity<OrdenesServiciosModel> actualizarOrdenServicio(@PathVariable ObjectId id,
+            @RequestBody OrdenesServiciosModel ordenServicio) {
+        return new ResponseEntity<OrdenesServiciosModel>(
+                ordenesServiciosService.actualizarOrdenServicio(id, ordenServicio), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
