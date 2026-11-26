@@ -31,8 +31,7 @@ public class ITrabajosOrdenServiceImp implements ITrabajosOrdenService {
     @Autowired
     IRepuestosService repuestosService;
 
-    @Override
-    public TrabajosOrdenModel crearTrabajoOrden(TrabajosOrdenModel trabajoOrden) {
+    private void validarReferencias(TrabajosOrdenModel trabajoOrden) {
         ObjectId ordenId = trabajoOrden.getOrdenId();
         if (ordenesServiciosService.buscarOrdenServicioPorId(ordenId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La orden de servicio con ID " + ordenId + " no existe.");
@@ -65,7 +64,11 @@ public class ITrabajosOrdenServiceImp implements ITrabajosOrdenService {
                 }
             }
         }
+    }
 
+    @Override
+    public TrabajosOrdenModel crearTrabajoOrden(TrabajosOrdenModel trabajoOrden) {
+        validarReferencias(trabajoOrden);
         return trabajosOrdenRepository.save(trabajoOrden);
     }
 
@@ -77,5 +80,23 @@ public class ITrabajosOrdenServiceImp implements ITrabajosOrdenService {
     @Override
     public TrabajosOrdenModel buscarTrabajoOrdenPorId(ObjectId id) {
         return trabajosOrdenRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public TrabajosOrdenModel actualizarTrabajoOrden(ObjectId id, TrabajosOrdenModel trabajoOrden) {
+        if (buscarTrabajoOrdenPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El trabajo de orden con ID " + id + " no existe.");
+        }
+        validarReferencias(trabajoOrden);
+        trabajoOrden.setId(id);
+        return trabajosOrdenRepository.save(trabajoOrden);
+    }
+
+    @Override
+    public void eliminarTrabajoOrden(ObjectId id) {
+        if (buscarTrabajoOrdenPorId(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El trabajo de orden con ID " + id + " no existe.");
+        }
+        trabajosOrdenRepository.deleteById(id);
     }
 }

@@ -2,14 +2,19 @@ package backend.controller;
 
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import backend.model.BicicletasModel;
 import backend.service.IBicicletasService;
@@ -21,13 +26,33 @@ public class BicicletasController {
     @Autowired
     IBicicletasService bicicletasService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BicicletasModel> crearBicicleta(@RequestBody BicicletasModel bicicleta) {
         return new ResponseEntity<BicicletasModel>(bicicletasService.crearBicicleta(bicicleta), HttpStatus.CREATED);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<BicicletasModel>> listarBicicletas() {
         return new ResponseEntity<List<BicicletasModel>>(bicicletasService.listarBicicletas(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BicicletasModel> buscarBicicletaPorId(@PathVariable ObjectId id) {
+        BicicletasModel bicicleta = bicicletasService.buscarBicicletaPorId(id);
+        if (bicicleta == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La bicicleta con ID " + id + " no existe.");
+        }
+        return new ResponseEntity<BicicletasModel>(bicicleta, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BicicletasModel> actualizarBicicleta(@PathVariable ObjectId id, @RequestBody BicicletasModel bicicleta) {
+        return new ResponseEntity<BicicletasModel>(bicicletasService.actualizarBicicleta(id, bicicleta), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarBicicleta(@PathVariable ObjectId id) {
+        bicicletasService.eliminarBicicleta(id);
+        return new ResponseEntity<String>("Bicicleta eliminada correctamente.", HttpStatus.OK);
     }
 }
