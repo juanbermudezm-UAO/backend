@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EvidenciasHallazgoModel {
     private String nombreArchivo;
+    private String descripcion;
     private String ubicacion;
 }
